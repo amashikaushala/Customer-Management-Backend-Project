@@ -1,35 +1,60 @@
 package edu.icet.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.icet.dto.Customer;
+import edu.icet.entity.CustomerEntity;
+import edu.icet.repository.CustomerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 
 public class CustomerServiceImpl implements CustomerService{
+
+    private final CustomerRepository repository;
+    private final ObjectMapper mapper;
+
     @Override
     public Customer addCustomer(Customer customer) {
-        return null;
+//        new ObjectMapper().convertValue(customer,Customer.class);
+
+        return mapper.convertValue(
+                repository.save(mapper.convertValue(customer, CustomerEntity.class)),Customer.class
+        );
+
     }
 
     @Override
     public Customer updateCustomer(Customer customer) {
-        return null;
+        return mapper.convertValue(
+                repository.save(mapper.convertValue(customer, CustomerEntity.class)),Customer.class
+        );
     }
 
     @Override
     public Boolean deleteCustomer(Integer id) {
-        return null;
+        repository.deleteById(id);
+        return true;
     }
 
     @Override
-    public Customer searchCustomerById(Integer integer) {
-        return null;
+    public Customer searchCustomerById(Integer id) {
+      return mapper.convertValue(repository.findById(id),Customer.class);
     }
 
     @Override
     public List<Customer> getAll() {
-        return List.of();
+      List<CustomerEntity> entities=repository.findAll();
+      List<Customer> customerList=new ArrayList<>();
+
+      entities.forEach(customerEntity -> customerList.add(
+              mapper.convertValue(customerEntity, Customer.class
+              )
+      ));
+      return customerList;
     }
 }
